@@ -52,7 +52,7 @@ namespace Docker.Discord.Types
 	
 	public record InteractionResponsePayload (
 		[property: JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)] InteractionResponseType Type,
-		[property: JsonProperty("data", NullValueHandling = NullValueHandling.Ignore)] InteractionResponseBuilder Data
+		[property: JsonProperty("data", NullValueHandling = NullValueHandling.Ignore)] InteractionResponseBuilder Data = null
 		);
 
 	public sealed record InboundInteractionPayload()

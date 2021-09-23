@@ -1,7 +1,9 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
 using Docker.Discord.Services;
+using Docker.Discord.Types;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
 
 namespace Docker.Discord.Controllers
 {
@@ -24,6 +26,11 @@ namespace Docker.Discord.Controllers
 			if (!HeaderHelpers.ValidateHeaderSignature(ts, body, si, _key))
 				return Unauthorized();
 
+			var bodyObj = JObject.Parse(body);
+
+			if (bodyObj["type"].ToObject<InteractionType>() is InteractionType.Ping)
+				return Ok(new InteractionResponsePayload(InteractionResponseType.Pong));
+			
 
 			return Accepted();
 		}
