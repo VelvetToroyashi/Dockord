@@ -11,7 +11,7 @@ namespace Docker.Discord.Controllers
 	[Route("api/v1")]
 	public class InteractionsController : ControllerBase
 	{
-		private readonly string _key = "Key here";
+		private readonly string _key = "key here";
 
 		[HttpPost]
 		[Route("interactions")]
@@ -19,8 +19,6 @@ namespace Docker.Discord.Controllers
 		{
 			using var bodyReader = new StreamReader(Request.Body);
 			var body = await bodyReader.ReadToEndAsync();
-			
-			
 			
 			if (!HeaderHelpers.HasRequisiteHeaders(Request.Headers, out var ts, out var si))
 				return Unauthorized();

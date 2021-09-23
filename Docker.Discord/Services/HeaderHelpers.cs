@@ -26,8 +26,8 @@ namespace Docker.Discord.Services
 		
 		public static bool ValidateHeaderSignature(string timestamp, string body, string signature, string publicKey)
 		{
-			byte[] sigBtyes = Encoding.UTF8.GetBytes(signature);
-			byte[] keyBytes = Encoding.UTF8.GetBytes(publicKey);
+			byte[] sigBtyes = Convert.FromHexString(signature);
+			byte[] keyBytes = Convert.FromHexString(publicKey);
 			byte[] bodyBytes = Encoding.UTF8.GetBytes(timestamp + body);
 
 			return Chaos.NaCl.Ed25519.Verify(sigBtyes, bodyBytes, keyBytes);
