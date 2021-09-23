@@ -4,10 +4,8 @@ EXPOSE 80
 EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
-WORKDIR /src
-COPY ["Docker.Discord/Docker.Discord.csproj", "Docker.Discord/"]
-RUN dotnet restore "Docker.Discord/Docker.Discord.csproj"
 COPY . .
+RUN dotnet restore "Docker.Discord.csproj"
 WORKDIR "/src/Docker.Discord"
 RUN dotnet build "Docker.Discord.csproj" -c Release -o /app/build
 
