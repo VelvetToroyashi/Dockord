@@ -2,10 +2,14 @@
 
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
+        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3"/>
+        <PackageReference Include="Chaos.NaCl.Core" Version="1.0.0" />
+        <PackageReference Include="DSharpPlus.Rest" Version="4.1.0" />
+        <PackageReference Include="NSec.Cryptography" Version="20.2.0" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
     </ItemGroup>
 
 </Project>
