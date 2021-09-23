@@ -18,6 +18,7 @@ namespace Docker.Discord
 
 		public static IHostBuilder CreateHostBuilder(string[] args) =>
 			Host.CreateDefaultBuilder(args)
+				.ConfigureHostConfiguration(c => c.AddUserSecrets<Program>())
 				.ConfigureWebHostDefaults(webBuilder =>
 				{
 					//webBuilder.UseUrls("https://*:5000");

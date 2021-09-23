@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Docker.Discord.Services;
 using Docker.Discord.Types;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
 
 namespace Docker.Discord.Controllers
@@ -11,8 +12,13 @@ namespace Docker.Discord.Controllers
 	[Route("api/v1")]
 	public class InteractionsController : ControllerBase
 	{
-		private readonly string _key = "key here";
-
+		private readonly string _key;
+		public InteractionsController(IConfiguration config)
+		{
+			_key = config["key"];
+		}
+		
+		
 		[HttpPost]
 		[Route("interactions")]
 		public async Task<IActionResult> HandleInteractionAsync() /* TODO: InteractionPayload payload*/

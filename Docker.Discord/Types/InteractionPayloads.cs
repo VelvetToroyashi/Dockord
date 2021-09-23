@@ -26,8 +26,8 @@ namespace Docker.Discord.Types
 		Button = 2,
 		Dropdown = 3
 	}
-	
-	public enum AppCommandOptionType 
+
+	public enum AppCommandOptionType
 	{
 		SubCommand = 1,
 
@@ -40,7 +40,7 @@ namespace Docker.Discord.Types
 		Boolean,
 
 		User,
-		
+
 		Channel,
 
 		Role,
@@ -49,37 +49,74 @@ namespace Docker.Discord.Types
 
 		FloatingPoint
 	}
-	
-	public record InteractionResponsePayload (
+
+	public enum AppCommandType
+	{
+		SlashCommand = 1,
+		UserContextMenu = 2,
+		MessageContextMenu = 3,
+		AutoCompleteRequest = 4,
+	}
+
+	public record InteractionResponsePayload(
 		[property: JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)] InteractionResponseType Type,
 		[property: JsonProperty("data", NullValueHandling = NullValueHandling.Ignore)] InteractionResponseBuilder Data = null
-		);
+	);
 
 	public sealed record InboundInteractionPayload()
 	{
+		[JsonProperty("id")]
 		public int Id { get; init; }
-		
+
+		[JsonProperty("application_id")]
 		public ulong ApplicationId { get; init; }
-		
+
+		[JsonProperty("type")]
 		public InteractionType Type { get; init; }
-		
+
+		[JsonProperty("data")]
 		public InteractionData Data { get; init; }
 
+		[JsonProperty("guild_id")]
 		public ulong? GuildId { get; init; }
 
+		[JsonProperty("channel_id")]
 		public ulong? ChannelId { get; init; }
 
+		[JsonProperty("token")]
 		public string Token { get; init; }
 	}
 
 	public sealed record InteractionData
 	{
+		[JsonProperty("name")]
 		public string Name { get; init; }
-		
+
+		[JsonProperty("custom_id")]
 		public string CustomId { get; init; }
 		
+		[JsonProperty("type")]
 		public ComponentType ComponentType { get; init; }
 	}
 	
+	public sealed record AppCommand(
+		[property: JsonProperty("id")] ulong? Id,
+		[property: JsonProperty("name")] string Name,
+		[property: JsonProperty("description")] string Description,
+		[property: JsonProperty("options")] AppCommandOption[]? Options,
+		[property: JsonProperty("default_permission")] bool? DefaultPermission = null,
+		[property: JsonProperty("type")] AppCommandType Type = AppCommandType.SlashCommand);
+
+	public sealed record AppCommandOption(
+		[property: JsonProperty("name")] string Name, 
+		[property: JsonProperty("description")] string Description, 
+		[property: JsonProperty("type")] AppCommandOptionType Type, 
+		[property: JsonProperty("choices")] AppCommandChoice[]? Choices,
+		[property: JsonProperty("required")] bool? Required = null, 
+		[property: JsonProperty("autocomplete")] bool? AutoComplete = null);
+
+	public sealed record AppCommandChoice(
+		[property: JsonProperty("name")] string Name, 
+		[property: JsonProperty("value")] object Value);
 	
 }
