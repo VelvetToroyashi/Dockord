@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -19,8 +20,14 @@ namespace Docker.Discord
 
 		public async Task Invoke(HttpContext context)
 		{
-			_logger.LogInformation("Request to {Method} {Url}{Query} | Body: {Body} | Headers: {Headers}",context.Request.Method, context.Request.Path, context.Request.QueryString, new StreamReader(context.Request.Body).ReadToEndAsync().GetAwaiter().GetResult(), @context.Request.Headers);
-			await _next.Invoke(context);
+			try
+			{
+				await _next.Invoke(context);
+			}
+			finally
+			{
+				_logger.LogInformation("Request to {Method} {Url} returned {Status}-{Name} Body: {Body}",context.Request.Method, context.Request.Path, context.Response.StatusCode, (HttpStatusCode)context.Response.StatusCode, new StreamReader(context.Request.Body).ReadToEndAsync().GetAwaiter().GetResult());
+			}
 			
 		}
 	}
