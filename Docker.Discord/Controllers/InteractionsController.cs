@@ -17,21 +17,20 @@ namespace Docker.Discord.Controllers
 		[Route("interactions")]
 		public async Task<IActionResult> HandleInteractionAsync() /* TODO: InteractionPayload payload*/
 		{
-			if (!HeaderHelpers.HasRequisiteHeaders(Request.Headers, out var ts, out var si))
-				return Unauthorized();
-
 			using var bodyReader = new StreamReader(Request.Body);
 			var body = await bodyReader.ReadToEndAsync();
-
-			if (!HeaderHelpers.ValidateHeaderSignature(ts, body, si, _key))
-				return Unauthorized();
-
+			
 			var bodyObj = JObject.Parse(body);
-
+			
 			if (bodyObj["type"].ToObject<InteractionType>() is InteractionType.Ping)
 				return Ok(new InteractionResponsePayload(InteractionResponseType.Pong));
 			
-
+			if (!HeaderHelpers.HasRequisiteHeaders(Request.Headers, out var ts, out var si))
+				return Unauthorized();
+			
+			if (!HeaderHelpers.ValidateHeaderSignature(ts, body, si, _key))
+				return Unauthorized();
+			
 			return Accepted();
 		}
 	}
