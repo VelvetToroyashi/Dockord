@@ -22,7 +22,7 @@ namespace Docker.Discord.Controllers
 			
 			var bodyObj = JObject.Parse(body);
 			
-			if (bodyObj["type"].ToObject<InteractionType>() is InteractionType.Ping)
+			if (bodyObj["type"]?.ToObject<InteractionType>() is InteractionType.Ping)
 				return Ok(new InteractionResponsePayload(InteractionResponseType.Pong));
 			
 			if (!HeaderHelpers.HasRequisiteHeaders(Request.Headers, out var ts, out var si))

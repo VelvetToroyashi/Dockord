@@ -43,21 +43,17 @@ namespace Docker.Discord
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 		{
-			app.UseMiddleware<RequestLoggerMiddleware>();
-			
 			if (env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();
 				app.UseSwagger();
 				app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Docker.Discord v1"));
 			}
-
 			
-
 			app.UseHttpsRedirection();
-			
-			
-			
+
+			app.UseMiddleware<RequestLoggerMiddleware>();
+
 			app.UseRouting();
 
 			app.UseAuthorization();
