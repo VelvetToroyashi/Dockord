@@ -18,7 +18,7 @@ namespace Docker.Discord
 
 		public async Task Invoke(HttpContext context)
 		{
-			_logger.LogInformation("Request to {Method} {Url}{Query}",context.Request.Method, context.Request.Path, context.Request.QueryString);
+			_logger.LogInformation("Request to {Method} {Url}{Query} | Headers: {Headers}",context.Request.Method, context.Request.Path, context.Request.QueryString, @context.Request.Headers);
 			await _next.Invoke(context);
 			
 		}
