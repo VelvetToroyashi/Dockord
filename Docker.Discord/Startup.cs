@@ -33,6 +33,7 @@ namespace Docker.Discord
 			services.AddHttpClient();
 			
 			
+			
 			services.AddSwaggerGen(c =>
 			{
 				c.SwaggerDoc("v1", new OpenApiInfo { Title = "Docker.Discord", Version = "v1" });
@@ -42,6 +43,8 @@ namespace Docker.Discord
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 		{
+			app.UseMiddleware<RequestLoggerMiddleware>();
+			
 			if (env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();
@@ -49,8 +52,12 @@ namespace Docker.Discord
 				app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Docker.Discord v1"));
 			}
 
-			app.UseHttpsRedirection();
+			
 
+			app.UseHttpsRedirection();
+			
+			
+			
 			app.UseRouting();
 
 			app.UseAuthorization();
