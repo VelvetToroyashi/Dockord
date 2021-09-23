@@ -32,8 +32,6 @@ namespace Docker.Discord
 			services.AddSingleton<InteractionHelper>();
 			services.AddHttpClient();
 			
-			
-			
 			services.AddSwaggerGen(c =>
 			{
 				c.SwaggerDoc("v1", new OpenApiInfo { Title = "Docker.Discord", Version = "v1" });
