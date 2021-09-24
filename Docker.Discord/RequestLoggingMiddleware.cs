@@ -26,7 +26,7 @@ namespace Docker.Discord
 			}
 			finally
 			{
-				_logger.LogInformation("Request to {Method} {Url} returned {Status}-{Name} Body: {Body}",context.Request.Method, context.Request.Path, context.Response.StatusCode, (HttpStatusCode)context.Response.StatusCode, new StreamReader(context.Request.Body).ReadToEndAsync().GetAwaiter().GetResult());
+				//_logger.LogInformation("Request to {Method} {Url} returned {Status}-{Name} Body: {Body}",context.Request.Method, context.Request.Path, context.Response.StatusCode, (HttpStatusCode)context.Response.StatusCode, new StreamReader(context.Request.Body).ReadToEndAsync().GetAwaiter().GetResult());
 			}
 			
 		}

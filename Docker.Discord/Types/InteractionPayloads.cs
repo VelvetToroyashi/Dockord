@@ -63,10 +63,10 @@ namespace Docker.Discord.Types
 		[property: JsonProperty("data", NullValueHandling = NullValueHandling.Ignore)] InteractionResponseBuilder Data = null
 	);
 
-	public sealed record InboundInteractionPayload()
+	public sealed record InboundInteractionPayload
 	{
 		[JsonProperty("id")]
-		public int Id { get; init; }
+		public ulong Id { get; init; }
 
 		[JsonProperty("application_id")]
 		public ulong ApplicationId { get; init; }
@@ -97,7 +97,43 @@ namespace Docker.Discord.Types
 		
 		[JsonProperty("type")]
 		public ComponentType ComponentType { get; init; }
+		
+		[JsonProperty("options")]
+		public InteractionDataOption[] Options { get; init; }
 	}
+
+
+	public sealed record InteractionDataOption
+	{
+		[JsonProperty("name")]
+		public string Name { get; init; }
+		
+		[JsonProperty("type")]
+		public AppCommandOptionType Type { get; init; }
+		
+		[JsonProperty("focused")]
+		public bool Focused { get; init; }
+		
+		[JsonProperty("value")]
+		public string RawValue { get; init; }
+
+		public object Value => Type switch
+		{
+			AppCommandOptionType.Boolean => bool.Parse(RawValue),
+			AppCommandOptionType.Integer => long.Parse(RawValue),
+			AppCommandOptionType.String => RawValue,
+			AppCommandOptionType.Channel => ulong.Parse(RawValue),
+			AppCommandOptionType.User => ulong.Parse(RawValue),
+			AppCommandOptionType.Role => ulong.Parse(RawValue),
+			AppCommandOptionType.Mentionable => ulong.Parse(RawValue),
+
+			_ => RawValue.ToString()
+		};
+
+		[JsonProperty("options")]
+		public InteractionDataOption Options { get; init; }
+	}
+	
 	
 	public sealed record AppCommand(
 		[property: JsonProperty("id")] ulong? Id,

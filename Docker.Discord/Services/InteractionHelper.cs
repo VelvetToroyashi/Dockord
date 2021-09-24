@@ -1,4 +1,6 @@
-﻿using System.Net.Http;
+﻿using System;
+using System.Linq;
+using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
@@ -71,19 +73,36 @@ namespace Docker.Discord.Services
 			}
 		}
 
-		public async Task HandleInteractionAsync(JObject obj)
+		public async Task HandleInteractionAsync(JObject obj, DateTimeOffset then)
 		{
-			string payload;
-			if (!obj["data"]["options"].ToObject<JArray>()[0]["focused"].ToObject<bool>())
-			{
-				payload = JsonConvert.SerializeObject(new { type = InteractionResponseType.DeferredSlashReply });
-			}
-			else payload = JsonConvert.SerializeObject(new { type = InteractionResponseType.AutoCompleteResponse, data = new {choices = new[] { new { name = "owo", value = "test"}} }});
+			var now = DateTimeOffset.UtcNow;
+			_logger.LogInformation("Proccessing time: {Time}ms", (now - then).TotalMilliseconds);
 			
+			//	_logger.LogInformation(obj.ToString());
+
+			var payloadObj = obj.ToObject<InboundInteractionPayload>();
+			
+		string payload;
+		if (!payloadObj.Data.Options?.FirstOrDefault()?.Focused ?? true)
+		{
+			payload = JsonConvert.SerializeObject(new { type = InteractionResponseType.DeferredSlashReply });
+		}
+		else payload = JsonConvert.SerializeObject(new
+		{
+			type = InteractionResponseType.AutoCompleteResponse,
+			data = new
+			{
+				choices = new[]
+				{
+					new { name = "owo", value = "test"}
+				}
+			}
+		});
+
 			using var request = new HttpRequestMessage(HttpMethod.Post, (_apiUrl + _callbackUrl)
 				.Replace("{id}", obj["id"].ToString())
 				.Replace("{token}", obj["token"].ToString()));
-
+			
 			request.Content = new StringContent(payload);
 			
 			request.Content.Headers.ContentType = new("application/json");
@@ -91,6 +110,7 @@ namespace Docker.Discord.Services
 			
 			try
 			{
+				_logger.LogInformation("Prepared request in {Time}ms", (DateTimeOffset.UtcNow - now).TotalMilliseconds);
 				var res = await _client.SendAsync(request);
 				//TODO: Handle return response 
 				res.EnsureSuccessStatusCode();

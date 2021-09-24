@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 using Docker.Discord.Services;
 using Docker.Discord.Types;
@@ -25,6 +26,7 @@ namespace Docker.Discord.Controllers
 		[Route("interactions")]
 		public async Task<IActionResult> HandleInteractionAsync() /* TODO: InteractionPayload payload*/
 		{
+			var now = DateTimeOffset.UtcNow;
 			using var bodyReader = new StreamReader(Request.Body);
 			var body = await bodyReader.ReadToEndAsync();
 			
@@ -39,9 +41,9 @@ namespace Docker.Discord.Controllers
 			if (bodyObj["type"]?.ToObject<InteractionType>() is InteractionType.Ping)
 				return Ok(new InteractionResponsePayload(InteractionResponseType.Pong));
 
-			Task.Run(() =>  _interactions.HandleInteractionAsync(bodyObj));
+			await _interactions.HandleInteractionAsync(bodyObj, now);
 			
-			return Accepted();
+			return NoContent();
 		}
 	}
 }
