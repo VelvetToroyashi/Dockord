@@ -100,8 +100,8 @@ namespace Docker.Discord.Services
 		});
 
 			using var request = new HttpRequestMessage(HttpMethod.Post, (_apiUrl + _callbackUrl)
-				.Replace("{id}", obj["id"].ToString())
-				.Replace("{token}", obj["token"].ToString()));
+				.Replace("{id}", payloadObj.Id.ToString())
+				.Replace("{token}", payloadObj.Token));
 			
 			request.Content = new StringContent(payload);
 			

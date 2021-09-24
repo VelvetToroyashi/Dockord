@@ -43,7 +43,7 @@ namespace Docker.Discord.Controllers
 
 			await _interactions.HandleInteractionAsync(bodyObj, now);
 			
-			return NoContent();
+			return Accepted();
 		}
 	}
 }
