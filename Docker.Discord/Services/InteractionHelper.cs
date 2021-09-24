@@ -5,6 +5,7 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 using Docker.Discord.Types;
+using DSharpPlus.Exceptions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -26,15 +27,20 @@ namespace Docker.Discord.Services
 		
 		private readonly AppCommand[] _commands = new[]
 		{
-			new AppCommand(null,"docker", "Docker-related commands.", new []
-			{
-				new AppCommandOption("command", "The command to execute", AppCommandOptionType.String, null, true, true),
-				new AppCommandOption("arguments", "Optional arguments to pass", AppCommandOptionType.String, null, false)
-			}),
+			new AppCommand(null,"docker", "Docker-related commands.", _dockerOptions),
 			new AppCommand(null, "docker-compose", "Docker-compose related commands.", new[]
 			{
-				new AppCommandOption("command", "The command to execute", AppCommandOptionType.String, null, true, true),
-				new AppCommandOption("arguments", "Optional arguments to pass", AppCommandOptionType.String, null, false)
+				new AppCommandOption("command", "The command to execute", AppCommandOptionType.String, null, null, true, true),
+				new AppCommandOption("arguments", "Optional arguments to pass", AppCommandOptionType.String, null, null, false)
+			}),
+			
+		};
+
+		private static readonly AppCommandOption[] _dockerOptions = new[]
+		{
+			new AppCommandOption("rmi", "remove an image", AppCommandOptionType.SubCommand, null, new[]
+			{
+				new AppCommandOption("image", "the image to remove", AppCommandOptionType.String, null, null, true, true)
 			})
 		};
 		
@@ -58,18 +64,19 @@ namespace Docker.Discord.Services
 			
 			request.Content.Headers.ContentType = new("application/json");
 			request.Headers.TryAddWithoutValidation("Authorization", $"Bot {_authToken}");
-			
+
+			HttpResponseMessage res = await _client.SendAsync(request);
 			try
-			{
-				var res = await _client.SendAsync(request);
-				//TODO: Handle return response 
+			{ //TODO: Handle return response 
 				res.EnsureSuccessStatusCode();
 				
 				_logger.LogInformation("Successfully registered slash commands.");
 			}
-			catch
+			catch (HttpRequestException e)
 			{
-				_logger.LogCritical("Oh no something went wrong.");
+				var responseBody = await res.Content.ReadAsStringAsync();
+				_logger.LogInformation("Outbound JSON: {Json}", payload);
+				_logger.LogCritical("Discord returned: {Json}", responseBody);
 			}
 		}
 

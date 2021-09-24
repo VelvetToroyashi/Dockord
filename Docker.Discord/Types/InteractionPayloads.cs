@@ -147,7 +147,8 @@ namespace Docker.Discord.Types
 		[property: JsonProperty("name")] string Name, 
 		[property: JsonProperty("description")] string Description, 
 		[property: JsonProperty("type")] AppCommandOptionType Type, 
-		[property: JsonProperty("choices")] AppCommandChoice[]? Choices,
+		[property: JsonProperty("choices")] AppCommandChoice[]? Choices = null,
+		[property: JsonProperty("options")] AppCommandOption[]? Options = null,
 		[property: JsonProperty("required")] bool? Required = null, 
 		[property: JsonProperty("autocomplete")] bool? AutoComplete = null);
 
