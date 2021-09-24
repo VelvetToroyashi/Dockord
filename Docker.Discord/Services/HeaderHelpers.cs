@@ -32,6 +32,5 @@ namespace Docker.Discord.Services
 
 			return Chaos.NaCl.Ed25519.Verify(sigBtyes, bodyBytes, keyBytes);
 		}
-		
 	}
 }

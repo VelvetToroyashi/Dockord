@@ -13,9 +13,11 @@ namespace Docker.Discord.Controllers
 	public class InteractionsController : ControllerBase
 	{
 		private readonly string _key;
-		public InteractionsController(IConfiguration config)
+		private readonly InteractionHelper _interactions;
+		public InteractionsController(IConfiguration config, InteractionHelper interactions)
 		{
 			_key = config["key"];
+			_interactions = interactions;
 		}
 		
 		
@@ -36,6 +38,8 @@ namespace Docker.Discord.Controllers
 			
 			if (bodyObj["type"]?.ToObject<InteractionType>() is InteractionType.Ping)
 				return Ok(new InteractionResponsePayload(InteractionResponseType.Pong));
+
+			Task.Run(() =>  _interactions.HandleInteractionAsync(bodyObj));
 			
 			return Accepted();
 		}

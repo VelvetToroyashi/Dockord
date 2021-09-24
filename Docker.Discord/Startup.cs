@@ -51,17 +51,19 @@ namespace Docker.Discord
 			interactions.RegisterCommandsAsync().GetAwaiter().GetResult();
 
 			app.UseHttpsRedirection();
-
-			app.UseMiddleware<RequestLoggerMiddleware>();
-
+			
 			app.UseRouting();
 
+			app.UseMiddleware<RequestLoggerMiddleware>();
 			app.UseAuthorization();
 
+			
+			
 			app.UseEndpoints(endpoints =>
 			{
 				endpoints.MapControllers();
 			});
+			
 		}
 	}
 }

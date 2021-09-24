@@ -6,6 +6,7 @@ using Docker.Discord.Types;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Docker.Discord.Services
 {
@@ -13,11 +14,11 @@ namespace Docker.Discord.Services
 	{
 		private const string
 			_apiUrl = "https://discord.com/api/v9",
-			_commandUrl = "/applications/{application}/commands",
+			_commandUrl = "/applications/{application}/guilds/721518523704410202/commands",
 			_callbackUrl = "/interactions/{id}/{token}/callback",
 			_originalResponseUrl = "/webhooks/{application}/{token}/messages/@original";
 		
-		private readonly IHttpClientFactory _factory;
+		private readonly HttpClient _client;
 		private readonly ulong _applicationId;
 		private readonly string _authToken;
 		
@@ -38,9 +39,9 @@ namespace Docker.Discord.Services
 		private ILogger<InteractionHelper> _logger;
 
 
-		public InteractionHelper(IHttpClientFactory factory, ILogger<InteractionHelper> logger, IConfiguration config)
+		public InteractionHelper(HttpClient client, ILogger<InteractionHelper> logger, IConfiguration config)
 		{
-			_factory = factory;
+			_client = client;
 			_logger = logger;
 			_applicationId = config.GetValue<ulong>("id");
 			_authToken = config["token"];
@@ -48,26 +49,53 @@ namespace Docker.Discord.Services
 
 		public async Task RegisterCommandsAsync()
 		{
-			using var client = _factory.CreateClient();
-
 			var payload = JsonConvert.SerializeObject(_commands);
-
 			var request = new HttpRequestMessage(HttpMethod.Put, _apiUrl + _commandUrl.Replace("{application}", _applicationId.ToString()));
 
 			request.Content = new StringContent(payload);
 			
 			request.Content.Headers.ContentType = new("application/json");
 			request.Headers.TryAddWithoutValidation("Authorization", $"Bot {_authToken}");
-
 			
-
 			try
 			{
-				var res = await client.SendAsync(request);
+				var res = await _client.SendAsync(request);
 				//TODO: Handle return response 
 				res.EnsureSuccessStatusCode();
 				
 				_logger.LogInformation("Successfully registered slash commands.");
+			}
+			catch
+			{
+				_logger.LogCritical("Oh no something went wrong.");
+			}
+		}
+
+		public async Task HandleInteractionAsync(JObject obj)
+		{
+			string payload;
+			if (!obj["data"]["options"].ToObject<JArray>()[0]["focused"].ToObject<bool>())
+			{
+				payload = JsonConvert.SerializeObject(new { type = InteractionResponseType.DeferredSlashReply });
+			}
+			else payload = JsonConvert.SerializeObject(new { type = InteractionResponseType.AutoCompleteResponse, data = new {choices = new[] { new { name = "owo", value = "test"}} }});
+			
+			using var request = new HttpRequestMessage(HttpMethod.Post, (_apiUrl + _callbackUrl)
+				.Replace("{id}", obj["id"].ToString())
+				.Replace("{token}", obj["token"].ToString()));
+
+			request.Content = new StringContent(payload);
+			
+			request.Content.Headers.ContentType = new("application/json");
+			request.Headers.TryAddWithoutValidation("Authorization", $"Bot {_authToken}");
+			
+			try
+			{
+				var res = await _client.SendAsync(request);
+				//TODO: Handle return response 
+				res.EnsureSuccessStatusCode();
+				
+				_logger.LogInformation("Successfully responded.");
 			}
 			catch
 			{
