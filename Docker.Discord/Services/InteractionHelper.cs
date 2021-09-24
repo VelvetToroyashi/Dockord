@@ -87,7 +87,8 @@ namespace Docker.Discord.Services
 			var inboundPayload = obj.ToObject<InboundInteractionPayload>();
 			
 			object outboundPayload;
-			if (!inboundPayload.Data.Options?.FirstOrDefault()?.Focused ?? true)
+			if (!(inboundPayload.Data.Options?.SelectMany(o => o.Options)?.Any(o => o.Focused) ?? 
+			      inboundPayload.Data.Options?.Any(o => o.Focused))?? true)
 			{
 				outboundPayload = new { type = InteractionResponseType.DeferredSlashReply };
 			}
@@ -103,31 +104,33 @@ namespace Docker.Discord.Services
 				}
 			};
 
-			using var request = GeneratePayloadRequest(outboundPayload, _callbackUrl, inboundPayload.Id, inboundPayload.Token);
-				
+			using var request = GeneratePayloadRequest(JsonConvert.SerializeObject(outboundPayload), _callbackUrl, inboundPayload.Id, inboundPayload.Token);
+			_logger.LogInformation("Prepared request in {Time}ms", (DateTimeOffset.UtcNow - now).TotalMilliseconds);
+			var res = await _client.SendAsync(request);
+			var response = await res.Content.ReadAsStringAsync();
+			
 			try
 			{
-				_logger.LogInformation("Prepared request in {Time}ms", (DateTimeOffset.UtcNow - now).TotalMilliseconds);
-				var res = await _client.SendAsync(request);
 				//TODO: Handle return response 
 				res.EnsureSuccessStatusCode();
-				
 				_logger.LogInformation("Successfully responded.");
 			}
 			catch
 			{
-				_logger.LogCritical("Oh no something went wrong.");
+				_logger.LogCritical(response);
 			}
 		}
 
 
-		private HttpRequestMessage GeneratePayloadRequest(object payload, string endpoint, ulong id, string token)
+		private HttpRequestMessage GeneratePayloadRequest(string payload, string endpoint, ulong id, string token)
 		{
-			using var request = new HttpRequestMessage(HttpMethod.Post, (_apiUrl + _callbackUrl)
+			var request = new HttpRequestMessage(HttpMethod.Post, (_apiUrl + _callbackUrl)
 				.Replace("{id}", id.ToString())
 				.Replace("{token}", token));
 			
-			request.Content = new StringContent(JsonConvert.SerializeObject(payload));
+			_logger.LogWarning("Payload: {Payload}", payload);
+			
+			request.Content = new StringContent(payload);
 			
 			request.Content.Headers.ContentType = new("application/json");
 			request.Headers.TryAddWithoutValidation("Authorization", $"Bot {_authToken}");
