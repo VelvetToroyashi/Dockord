@@ -27,7 +27,13 @@ namespace Docker.Discord.Services
 		
 		private readonly AppCommand[] _commands = new[]
 		{
-			new AppCommand(null,"docker", "Docker-related commands.", _dockerOptions),
+			new AppCommand(null,"docker", "Docker-related commands.", new[]
+			{
+				new AppCommandOption("run", "run an image", AppCommandOptionType.SubCommand, null, new[]
+				{
+					new AppCommandOption("image", "the image to remove", AppCommandOptionType.String, null, null, true, true)
+				})
+			}),
 			new AppCommand(null, "docker-compose", "Docker-compose related commands.", new[]
 			{
 				new AppCommandOption("command", "The command to execute", AppCommandOptionType.String, null, null, true, true),
@@ -35,18 +41,9 @@ namespace Docker.Discord.Services
 			}),
 			
 		};
-
-		private static readonly AppCommandOption[] _dockerOptions = new[]
-		{
-			new AppCommandOption("rmi", "remove an image", AppCommandOptionType.SubCommand, null, new[]
-			{
-				new AppCommandOption("image", "the image to remove", AppCommandOptionType.String, null, null, true, true)
-			})
-		};
 		
 		private ILogger<InteractionHelper> _logger;
-
-
+		
 		public InteractionHelper(HttpClient client, ILogger<InteractionHelper> logger, IConfiguration config)
 		{
 			_client = client;

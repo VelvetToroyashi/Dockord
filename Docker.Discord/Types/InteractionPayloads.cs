@@ -98,8 +98,8 @@ namespace Docker.Discord.Types
 		[JsonProperty("type")]
 		public ComponentType ComponentType { get; init; }
 		
-		[JsonProperty("options")]
-		public InteractionDataOption[] Options { get; init; }
+		[JsonProperty("options", NullValueHandling = NullValueHandling.Ignore)]
+		public InteractionDataOption[]? Options { get; init; }
 	}
 
 
@@ -130,8 +130,8 @@ namespace Docker.Discord.Types
 			_ => RawValue.ToString()
 		};
 
-		[JsonProperty("options")]
-		public InteractionDataOption Options { get; init; }
+		[JsonProperty("options", NullValueHandling = NullValueHandling.Ignore)]
+		public InteractionDataOption[]? Options { get; init; }
 	}
 	
 	
