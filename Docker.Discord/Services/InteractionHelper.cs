@@ -80,34 +80,27 @@ namespace Docker.Discord.Services
 			
 			//	_logger.LogInformation(obj.ToString());
 
-			var payloadObj = obj.ToObject<InboundInteractionPayload>();
+			var inboundPayload = obj.ToObject<InboundInteractionPayload>();
 			
-		string payload;
-		if (!payloadObj.Data.Options?.FirstOrDefault()?.Focused ?? true)
-		{
-			payload = JsonConvert.SerializeObject(new { type = InteractionResponseType.DeferredSlashReply });
-		}
-		else payload = JsonConvert.SerializeObject(new
-		{
-			type = InteractionResponseType.AutoCompleteResponse,
-			data = new
+			object outboundPayload;
+			if (!inboundPayload.Data.Options?.FirstOrDefault()?.Focused ?? true)
 			{
-				choices = new[]
-				{
-					new { name = "owo", value = "test"}
-				}
+				outboundPayload = new { type = InteractionResponseType.DeferredSlashReply };
 			}
-		});
+			else outboundPayload = new
+			{
+				type = InteractionResponseType.AutoCompleteResponse,
+				data = new
+				{
+					choices = new[]
+					{
+						new { name = "owo", value = "test"}
+					}
+				}
+			};
 
-			using var request = new HttpRequestMessage(HttpMethod.Post, (_apiUrl + _callbackUrl)
-				.Replace("{id}", payloadObj.Id.ToString())
-				.Replace("{token}", payloadObj.Token));
-			
-			request.Content = new StringContent(payload);
-			
-			request.Content.Headers.ContentType = new("application/json");
-			request.Headers.TryAddWithoutValidation("Authorization", $"Bot {_authToken}");
-			
+			using var request = GeneratePayloadRequest(outboundPayload, _callbackUrl, inboundPayload.Id, inboundPayload.Token);
+				
 			try
 			{
 				_logger.LogInformation("Prepared request in {Time}ms", (DateTimeOffset.UtcNow - now).TotalMilliseconds);
@@ -121,6 +114,21 @@ namespace Docker.Discord.Services
 			{
 				_logger.LogCritical("Oh no something went wrong.");
 			}
+		}
+
+
+		private HttpRequestMessage GeneratePayloadRequest(object payload, string endpoint, ulong id, string token)
+		{
+			using var request = new HttpRequestMessage(HttpMethod.Post, (_apiUrl + _callbackUrl)
+				.Replace("{id}", id.ToString())
+				.Replace("{token}", token));
+			
+			request.Content = new StringContent(JsonConvert.SerializeObject(payload));
+			
+			request.Content.Headers.ContentType = new("application/json");
+			request.Headers.TryAddWithoutValidation("Authorization", $"Bot {_authToken}");
+
+			return request;
 		}
 	}
 }
