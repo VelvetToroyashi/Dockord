@@ -25,24 +25,23 @@ namespace Docker.Discord.Services
 		private readonly ulong _applicationId;
 		private readonly string _authToken;
 		
-		private readonly AppCommand[] _commands = new[]
-		{
-			new AppCommand(null,"docker", "Docker-related commands.", new[]
-			{
-				new AppCommandOption("run", "run an image", AppCommandOptionType.SubCommand, null, new[]
-				{
-					new AppCommandOption("image", "the image to remove", AppCommandOptionType.String, null, null, true, true)
-				})
-			}),
-			new AppCommand(null, "docker-compose", "Docker-compose related commands.", new[]
-			{
-				new AppCommandOption("command", "The command to execute", AppCommandOptionType.String, null, null, true, true),
-				new AppCommandOption("arguments", "Optional arguments to pass", AppCommandOptionType.String, null, null, false)
-			}),
-			
-		};
+        private readonly AppCommand[] _commands = new[]
+        {
+            new AppCommand(null,"docker",  "Docker-related commands.", new[]
+            {
+                new AppCommandOption("command", "The command to execute", AppCommandOptionType.String, null, null, true, true),
+                new AppCommandOption("arguments", "Arguments to pass", AppCommandOptionType.String, null, null, false, false)
+            }),
+            new AppCommand(null, "docker-compose", "Docker-compose related commands.", new[]
+            {
+                new AppCommandOption("command", "The command to execute", AppCommandOptionType.String, null, null, true, true),
+                new AppCommandOption("arguments", "Arguments to pass", AppCommandOptionType.String, null, null, false, false)
+            }),
+        };
 		
 		private ILogger<InteractionHelper> _logger;
+	
+		
 		
 		public InteractionHelper(HttpClient client, ILogger<InteractionHelper> logger, IConfiguration config)
 		{
@@ -72,15 +71,14 @@ namespace Docker.Discord.Services
 			catch (HttpRequestException e)
 			{
 				var responseBody = await res.Content.ReadAsStringAsync();
-				_logger.LogInformation("Outbound JSON: {Json}", payload);
-				_logger.LogCritical("Discord returned: {Json}", responseBody);
+				_logger.LogCritical("Discord returned 400 while registering slash commands. \n\nRegirstration JSON: \n{OutboundJSON} \n\nReturned JSON: \n{InboundJSON}", payload, responseBody);
 			}
 		}
 
 		public async Task HandleInteractionAsync(JObject obj, DateTimeOffset then)
 		{
 			var now = DateTimeOffset.UtcNow;
-			_logger.LogInformation("Proccessing time: {Time}ms", (now - then).TotalMilliseconds);
+			_logger.LogTrace("Proccessing time: {Time}ms", (now - then).TotalMilliseconds);
 			
 			//	_logger.LogInformation(obj.ToString());
 

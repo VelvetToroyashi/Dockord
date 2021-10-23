@@ -134,12 +134,11 @@ namespace Docker.Discord.Types
 		public InteractionDataOption[]? Options { get; init; }
 	}
 	
-	
 	public sealed record AppCommand(
 		[property: JsonProperty("id")] ulong? Id,
 		[property: JsonProperty("name")] string Name,
 		[property: JsonProperty("description")] string Description,
-		[property: JsonProperty("options")] AppCommandOption[]? Options,
+		[property: JsonProperty("options")] AppCommandOption[]? Options = null,
 		[property: JsonProperty("default_permission")] bool? DefaultPermission = null,
 		[property: JsonProperty("type")] AppCommandType Type = AppCommandType.SlashCommand);
 
