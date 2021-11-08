@@ -24,20 +24,58 @@ namespace Docker.Discord.Services
 		private readonly HttpClient _client;
 		private readonly ulong _applicationId;
 		private readonly string _authToken;
-		
-        private readonly AppCommand[] _commands = new[]
-        {
-            new AppCommand(null,"docker",  "Docker-related commands.", new[]
-            {
-                new AppCommandOption("command", "The command to execute", AppCommandOptionType.String, null, null, true, true),
-                new AppCommandOption("arguments", "Arguments to pass", AppCommandOptionType.String, null, null, false, false)
-            }),
-            new AppCommand(null, "docker-compose", "Docker-compose related commands.", new[]
-            {
-                new AppCommandOption("command", "The command to execute", AppCommandOptionType.String, null, null, true, true),
-                new AppCommandOption("arguments", "Arguments to pass", AppCommandOptionType.String, null, null, false, false)
-            }),
-        };
+
+		private readonly object[] _commandList =
+		{
+			new
+			{ 
+				Name = "docker",
+				Description = "Docker-related commands",
+				Options = new[] 
+				{
+					new 
+					{
+						Name = "command",
+						Description = "The command to execute",
+						Type = 3,
+						Required = true,
+						AutoComplete = true
+					},
+					new 
+					{ 
+						Name = "args", 
+						Description = "Arguments to pass to the command",
+						Type = 3,
+						Required = false,
+						AutoComplete = true
+					}
+				}
+			},
+			new
+			{
+				Name = "docker-compose",
+				Description = "Docker-Compose related commands",
+				Options = new[] 
+                {
+                    new 
+                    {
+                        Name = "command",
+                        Description = "The command to execute",
+                        Type = 3,
+                        Required = true,
+                        AutoComplete = true
+                    },
+                    new 
+                    { 
+                        Name = "args", 
+                        Description = "Arguments to pass to the command",
+                        Type = 3,
+                        Required = false,
+                        AutoComplete = true
+                    }
+                }
+			}
+		};
 		
 		private ILogger<InteractionHelper> _logger;
 	
@@ -53,7 +91,7 @@ namespace Docker.Discord.Services
 
 		public async Task RegisterCommandsAsync()
 		{
-			var payload = JsonConvert.SerializeObject(_commands);
+			var payload = JsonConvert.SerializeObject(_commandList);
 			var request = new HttpRequestMessage(HttpMethod.Put, _apiUrl + _commandUrl.Replace("{application}", _applicationId.ToString()));
 
 			request.Content = new StringContent(payload);
@@ -80,43 +118,8 @@ namespace Docker.Discord.Services
 			var now = DateTimeOffset.UtcNow;
 			_logger.LogTrace("Proccessing time: {Time}ms", (now - then).TotalMilliseconds);
 			
-			//	_logger.LogInformation(obj.ToString());
-
-			var inboundPayload = obj.ToObject<InboundInteractionPayload>();
 			
-			object outboundPayload;
-			if (!(inboundPayload.Data.Options?.SelectMany(o => o.Options)?.Any(o => o.Focused) ?? 
-			      inboundPayload.Data.Options?.Any(o => o.Focused))?? true)
-			{
-				outboundPayload = new { type = InteractionResponseType.DeferredSlashReply };
-			}
-			else outboundPayload = new
-			{
-				type = InteractionResponseType.AutoCompleteResponse,
-				data = new
-				{
-					choices = new[]
-					{
-						new { name = "owo", value = "test"}
-					}
-				}
-			};
-
-			using var request = GeneratePayloadRequest(JsonConvert.SerializeObject(outboundPayload), _callbackUrl, inboundPayload.Id, inboundPayload.Token);
-			_logger.LogInformation("Prepared request in {Time}ms", (DateTimeOffset.UtcNow - now).TotalMilliseconds);
-			var res = await _client.SendAsync(request);
-			var response = await res.Content.ReadAsStringAsync();
 			
-			try
-			{
-				//TODO: Handle return response 
-				res.EnsureSuccessStatusCode();
-				_logger.LogInformation("Successfully responded.");
-			}
-			catch
-			{
-				_logger.LogCritical(response);
-			}
 		}
 
 
