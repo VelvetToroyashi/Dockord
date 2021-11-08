@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Serialization;
 
 namespace Docker.Discord.Services
 {
@@ -30,6 +31,7 @@ namespace Docker.Discord.Services
 			new
 			{ 
 				Name = "docker",
+				Type = 1,
 				Description = "Docker-related commands",
 				Options = new[] 
 				{
@@ -54,6 +56,7 @@ namespace Docker.Discord.Services
 			new
 			{
 				Name = "docker-compose",
+				Type = 1,
 				Description = "Docker-Compose related commands",
 				Options = new[] 
                 {
@@ -91,7 +94,14 @@ namespace Docker.Discord.Services
 
 		public async Task RegisterCommandsAsync()
 		{
-			var payload = JsonConvert.SerializeObject(_commandList);
+			var payload = JsonConvert.SerializeObject(_commandList, new JsonSerializerSettings()
+			{
+                ContractResolver = new DefaultContractResolver
+                {
+                    NamingStrategy = new CamelCaseNamingStrategy()
+                }
+            });
+            
 			var request = new HttpRequestMessage(HttpMethod.Put, _apiUrl + _commandUrl.Replace("{application}", _applicationId.ToString()));
 
 			request.Content = new StringContent(payload);
