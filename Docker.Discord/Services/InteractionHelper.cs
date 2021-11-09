@@ -30,54 +30,54 @@ namespace Docker.Discord.Services
 		{
 			new
 			{ 
-				Name = "docker",
-				Type = 1,
-				Description = "Docker-related commands",
-				Options = new[] 
+				name = "docker",
+				type = 1,
+				description = "Docker-related commands",
+				options = new[] 
 				{
 					new 
 					{
-						Name = "command",
-						Description = "The command to execute",
-						Type = 3,
-						Required = true,
-						AutoComplete = true
+						name = "command",
+						type = 3,
+						description = "The command to execute",
+						required = true,
+						autocomplete = true
 					},
 					new 
 					{ 
-						Name = "args", 
-						Description = "Arguments to pass to the command",
-						Type = 3,
-						Required = false,
-						AutoComplete = true
+						name = "args", 
+						type = 3,
+						description = "Arguments to pass to the command",
+						required = false,
+						autocomplete = true
 					}
 				}
 			},
 			new
-			{
-				Name = "docker-compose",
-				Type = 1,
-				Description = "Docker-Compose related commands",
-				Options = new[] 
-                {
-                    new 
-                    {
-                        Name = "command",
-                        Description = "The command to execute",
-                        Type = 3,
-                        Required = true,
-                        AutoComplete = true
-                    },
-                    new 
-                    { 
-                        Name = "args", 
-                        Description = "Arguments to pass to the command",
-                        Type = 3,
-                        Required = false,
-                        AutoComplete = true
-                    }
-                }
-			}
+			{ 
+				name = "docker-compose",
+				type = 1,
+				description = "Docker-Compose-related commands",
+				options = new[] 
+				{
+					new 
+					{
+						name = "command",
+						type = 3,
+						description = "The command to execute",
+						required = true,
+						autocomplete = true
+					},
+					new 
+					{ 
+						name = "args", 
+						type = 3,
+						description = "Arguments to pass to the command",
+						required = false,
+						autocomplete = true
+					}
+				}
+			},
 		};
 		
 		private ILogger<InteractionHelper> _logger;
