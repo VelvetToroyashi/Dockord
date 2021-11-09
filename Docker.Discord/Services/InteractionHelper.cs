@@ -196,9 +196,47 @@ public sealed class InteractionHelper
 		}
 	}
 	
-	private Task SuggestDockerComposeAsync(JObject input)
+	private async Task SuggestDockerComposeAsync(JObject input)
 	{
-		return null;
+		var id = input["id"].ToObject<ulong>();
+		var token = input["token"].ToString();
+        
+		var command = input["data"]["options"][0]["value"].ToString();
+		
+		if (string.IsNullOrEmpty(command))
+        {
+            var payload =
+                new
+                {
+                    type = 8,
+                    data = new 
+                    {
+                        choices = _dockerComposeCommands.Select(x => new { name = x, value = x })
+                    }
+                };
+            var response = JsonConvert.SerializeObject(payload);
+
+            var request = GeneratePayloadRequest(response, "/callback", id, token);
+            
+            await _client.SendAsync(request);
+        }
+        else
+        {
+            var selections = FuzzySharp.Process.ExtractTop(command, _dockerComposeCommands, limit: 10, cutoff: 60);
+            var payload = new
+            {
+                type = 8,
+                data = new
+                {
+                    choices = selections.Select(x => new { name = x.Value, value = x.Value })
+                }
+            };
+            var response = JsonConvert.SerializeObject(payload);
+            
+            var request = GeneratePayloadRequest(response, _callbackUrl, id, token);
+            
+            await _client.SendAsync(request);
+        }
 	}
 
 
