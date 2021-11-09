@@ -10,6 +10,7 @@
 
     <ItemGroup>
         <PackageReference Include="Chaos.NaCl.Core" Version="1.0.0" />
+        <PackageReference Include="Docker.DotNet" Version="3.125.5" />
         <PackageReference Include="DSharpPlus.Rest" Version="4.1.0" />
         <PackageReference Include="FuzzySharp" Version="2.0.2" />
         <PackageReference Include="NSec.Cryptography" Version="20.2.0" />
