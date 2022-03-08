@@ -7,7 +7,7 @@ namespace Docker.Discord.Services;
 
 public class DockerService
 {
-	private readonly DockerClient _dockerClient;
+	private readonly DockerClient _docker;
 
 	public DockerService()
     {
@@ -16,11 +16,11 @@ public class DockerService
 	    if (OperatingSystem.IsWindows())
 		    dockerEndpoint = "npipe://./pipe/docker_engine";
 	    
-	    _dockerClient = new DockerClientConfiguration(new Uri(dockerEndpoint)).CreateClient();
+	    _docker = new DockerClientConfiguration(new Uri(dockerEndpoint)).CreateClient();
     }
 
 	public Task RunImageAsync(string image, string tag = "latest")
-		=> _dockerClient.Images.CreateImageAsync(new()
+		=> _docker.Images.CreateImageAsync(new()
 		{
 			FromImage = image,
             Tag = tag
